@@ -1,0 +1,155 @@
+<?php if (!defined('THINK_PATH')) exit();?><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>创建视图模型</title>
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- 可选的Bootstrap主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+<header>
+    <p>头</p>
+</header>
+<section>
+
+
+    <form action="<?php echo U('Cmodel/index');?>" method="post">
+        <div class="col-xs-12">
+            <label for="moduleName">选择模块</label>
+            <select name="moduleName" id="moduleName">
+                <?php if(is_array($moduleName)): foreach($moduleName as $key=>$vo): ?><option value="<?php echo ($vo); ?>"><?php echo ($vo); ?></option><?php endforeach; endif; ?>
+            </select>
+            <br/>
+            <div class="col-xs-6">
+                <label for="tablename_a">选择数据表A</label>
+                <select name="tablename_a" id="tablename_a">
+                    <?php if(is_array($modelName)): foreach($modelName as $key=>$vo): ?><option value="<?php echo ($vo); ?>"><?php echo ($vo); ?></option><?php endforeach; endif; ?>
+                </select>
+                <button type="button" onclick="getColumn_a();">获取表字段</button>
+                <br/>
+                <label for class="tablename_a_relation">A表的关联字段</label>
+                <select name="tablename_a" id="tablename_a_relation">
+
+                </select>
+                <hr>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>字段名</th>
+                        <th>选择</th>
+                        <th>别名</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablename_a_table">
+
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-xs-6">
+                <label for="tablename_b">选择数据表B</label>
+                <select name="tablename_b" id="tablename_b">
+                    <?php if(is_array($modelName)): foreach($modelName as $key=>$vo): ?><option value="<?php echo ($vo); ?>"><?php echo ($vo); ?></option><?php endforeach; endif; ?>
+                </select>
+                <button type="button" onclick="getColumn_b();">获取表字段</button>
+                <br/>
+                <label for class="tablename_a_relation">B表的关联字段</label>
+                <select name="tablename_b" id="tablename_b_relation">
+
+                </select>
+                <hr>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>字段名</th>
+                        <th>选择</th>
+                        <th>别名</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablename_b_table">
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+</section>
+</body>
+<script>
+    function getColumn_a() {
+        $.ajax({
+            url: '<?php echo U("Cviewmodel/get_table_column");?>',
+            type: 'POST',
+            data: {
+                tablename: document.getElementById('tablename_a').value
+            },
+            success: function (data) {
+                $('#tablename_a_relation').html('');
+                relation_column($('#tablename_a_relation'), data);
+                writeColumn_a(data);
+
+            }, error: function () {
+
+            }
+        });
+    }
+    function getColumn_b() {
+        $.ajax({
+            url: '<?php echo U("Cviewmodel/get_table_column");?>',
+            type: 'POST',
+            data: {
+                tablename: document.getElementById('tablename_b').value
+            },
+            success: function (data) {
+                $('#tablename_b_relation').html('');
+                relation_column($('#tablename_b_relation'), data);
+                writeColumn_b(data);
+            }, error: function () {
+
+            }
+        });
+    }
+
+    function writeColumn_a(data) {
+        $('#tablename_a_table').html('');
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            html = html + '<tr>' + '<td>' + data[i] + '</td>' +
+                    '<td><input type="checkbox" checked name="tablename_a_fields[]" value="' + data[i] + '"/></td>' +
+                    '<td><input type="text" name="tablename_a_fields_alias" value="" placeholder="不填表示不使用别名" /></td>' +
+                    '</tr>';
+        }
+        $('#tablename_a_table').append(html);
+    }
+
+    function writeColumn_b(data) {
+        $('#tablename_b_table').html('');
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            html = html + '<tr>' + '<td>' + data[i] + '</td>' +
+                    '<td><input type="checkbox" checked name="tablename_b_fields[]" value="' + data[i] + '"/></td>' +
+                    '<td><input type="text" name="tablename_b_fields_alias" value="" placeholder="不填表示不使用别名" /></td>' +
+                    '</tr>';
+        }
+        $('#tablename_b_table').append(html);
+    }
+
+    function relation_column(obj, data) {
+        var html = '';
+        for (var i = 0; i < data.length; i++) {
+            html = html + '<option value="' + data[i] + '">' + data[i] + '</optioin>';
+        }
+        obj.append(html);
+    }
+</script>
+</html>
